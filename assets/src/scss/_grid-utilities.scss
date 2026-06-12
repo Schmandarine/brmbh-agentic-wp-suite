@@ -1,0 +1,97 @@
+// =============================================================================
+// GRID UTILITIES — query-free responsive grid system
+// Ported from jans-lumos-checkout.webflow.io/test-gridsystem
+// =============================================================================
+//
+// u-grid-autofit  — auto-fit:  empty tracks collapse (items stretch to fill row)
+// u-grid-autofill — auto-fill: empty tracks kept  (items stay their min width)
+// u-grid-column-* — explicit N-column grids, responsive via Bootstrap breakpoints
+//
+// Configure via CSS custom properties on the element:
+//   --grid-min      override the min item width for autofit/autofill
+//   --grid-gap--main override the gap (falls back to Bootstrap gutter 1.5rem)
+//
+// Example:
+//   <div class="u-grid-autofit" style="--grid-min: 18rem; --grid-gap--main: 2rem">
+
+// ── Autofit ──────────────────────────────────────────────────────────────────
+// The core trick: min(100%, var(--grid-min)) ensures a single item never
+// overflows its container — when the container < --grid-min the item takes
+// full width (single column) rather than causing horizontal scroll.
+
+.u-grid-autofit {
+  display: grid;
+  gap: var(--grid-gap--main);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--grid-min, 13rem)), 1fr)
+  );
+}
+
+// ── Autofill ─────────────────────────────────────────────────────────────────
+// Same as autofit but empty tracks are preserved — items don't stretch to fill
+// a partially-populated row. Prefer autofill when items have a fixed visual
+// rhythm that shouldn't change based on count.
+
+.u-grid-autofill {
+  display: grid;
+  gap: var(--grid-gap--main);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, var(--grid-min, 13rem)), 1fr)
+  );
+}
+
+// ── Fixed column grids ────────────────────────────────────────────────────────
+// Use when you control the exact item count. Responsive via Bootstrap mixins
+// so they respect the same breakpoints as the rest of the theme.
+
+.u-grid-column-2 {
+  display: grid;
+  gap: var(--grid-gap--main);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  @include media-breakpoint-down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.u-grid-column-3 {
+  display: grid;
+  gap: var(--grid-gap--main);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  @include media-breakpoint-down(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @include media-breakpoint-down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.u-grid-column-4 {
+  display: grid;
+  gap: var(--grid-gap--main);
+  grid-template-rows: auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  @include media-breakpoint-down(lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @include media-breakpoint-down(sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Gap modifiers ─────────────────────────────────────────────────────────────
+// Apply to any u-grid-* to override the gap independently of --grid-gap--main.
+
+.u-gap-xs  { --grid-gap--main: var(--space-xs);  }
+.u-gap-s   { --grid-gap--main: var(--space-s);   }
+.u-gap-m   { --grid-gap--main: var(--space-m);   }
+.u-gap-l   { --grid-gap--main: var(--space-l);   }
+.u-gap-xl  { --grid-gap--main: var(--space-xl);  }

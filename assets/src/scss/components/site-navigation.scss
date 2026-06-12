@@ -1,0 +1,286 @@
+// =============================================================================
+// SITE NAVIGATION
+// Desktop: transparent at top → white bar after --site-nav-scroll-threshold scroll.
+// Mobile:  white bar always + “Menü” toggle + dark dropdown (Figma 141:3673).
+// =============================================================================
+
+.site-nav {
+  --site-nav-scroll-threshold: 100px;
+  height: var(--site-nav-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: transparent;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  isolation: isolate;
+
+  &.navbar {
+    --bs-navbar-bg: transparent;
+    --bs-navbar-color: var(--brand-color-white);
+    padding: 0;
+    background-color: transparent;
+  }
+
+  > .container {
+    align-items: center;
+  }
+
+  // ── Logo variants ─────────────────────────────────────────────────────────
+  &__brand {
+    display: block;
+    flex-shrink: 0;
+    margin-right: 0;
+    padding: .8rem 0;
+
+    .site-logo {
+      display: block;
+      width: 7rem;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .site-logo--primary {
+      display: none;
+    }
+
+    .site-logo__fallback {
+      color: var(--brand-color-white);
+      font-weight: 700;
+    }
+  }
+
+  &__toggler {
+    align-items: center;
+    gap: var(--space-xs);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--brand-color-black);
+    box-shadow: none;
+
+    &:focus-visible {
+      outline: 2px solid rgba(0, 0, 0, 0.35);
+      outline-offset: 2px;
+    }
+  }
+
+  &__toggler-lines {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+
+    span {
+      display: block;
+      height: 2px;
+      border-radius: 1px;
+      background: currentColor;
+      transform-origin: center;
+      transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+  }
+
+  // ── Hamburger → X when open ───────────────────────────────────────────────
+  // Gap 5px + line height 2px = 7px between line centres → translateY(±7px)
+  &.is-open .site-nav__toggler-lines {
+    span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  }
+
+  &__toggler-label {
+    font-weight: 500;
+    font-size: $font-size-base;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  &__menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-m);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .nav-item {
+      margin: 0;
+    }
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xs) var(--space-s);
+    border-radius: 100px;
+    color: var(--brand-color-white);
+    font-weight: 600;
+    font-size: $font-size-base;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: background-color 0.15s ease, color 0.25s ease;
+
+    &:hover,
+    &:focus-visible,
+    &.is-active,
+    &.active {
+      //background: rgba(255, 255, 255, 0.16);
+      color: var(--brand-color-white);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+    }
+  }
+
+  // ── Scrolled state (hero out of view) ─────────────────────────────────────
+  &.is-scrolled {
+    background: var(--brand-color-white);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+
+    &.navbar {
+      background-color: var(--brand-color-white);
+    }
+
+    .site-nav__brand {
+      .site-logo--white { display: none; }
+      .site-logo--primary { display: block; }
+
+      .site-logo__fallback {
+        color: var(--brand-color-primary);
+      }
+    }
+
+    .site-nav__link {
+      color: var(--brand-color-black);
+
+      &:hover,
+      &:focus-visible,
+      &.is-active,
+      &.active {
+        //background: rgba(0, 0, 0, 0.06);
+        color: var(--brand-color-black);
+      }
+
+      &:focus-visible {
+        outline-color: rgba(0, 0, 0, 0.35);
+      }
+    }
+  }
+
+  // ── Desktop (Figma 271:6569) ─────────────────────────────────────────────
+  @include media-breakpoint-up(lg) {
+    .navbar-toggler.site-nav__toggler {
+      display: none !important;
+    }
+
+    .navbar-collapse.site-nav__collapse {
+      display: flex !important;
+      flex-basis: auto;
+      justify-content: flex-end;
+    }
+
+    &__menu {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  // ── Mobile — always white, ignore scroll state ────────────────────────────
+  @include media-breakpoint-down(lg) {
+    // min-height (not fixed height) so the open collapse stays on white ground
+    height: auto;
+    min-height: var(--site-nav-height);
+    background-color: var(--brand-color-white);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+
+    &.navbar {
+      --bs-navbar-bg: var(--brand-color-white);
+      background-color: var(--brand-color-white);
+    }
+
+    > .container {
+      padding-top: var(--space-s);
+      padding-bottom: var(--space-s);
+      flex-wrap: wrap;
+    }
+
+    &__brand {
+      img {
+        width: 9.25rem;
+        max-width: 46vw;
+      }
+
+      // Always show primary logo on white mobile bar
+      .site-logo--white { display: none; }
+      .site-logo--primary { display: block !important; }
+
+      .site-logo__fallback {
+        color: var(--brand-color-primary);
+      }
+    }
+
+    .navbar-toggler.site-nav__toggler {
+      display: inline-flex !important;
+    }
+
+    .navbar-collapse.site-nav__collapse {
+      width: 100%;
+      background-color: var(--brand-color-white);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      padding: var(--space-xs) 0;
+    }
+
+    &__menu {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+    }
+
+    &__link {
+      justify-content: flex-start;
+      width: 100%;
+      padding: var(--space-s) 0;
+      border-radius: 0;
+      color: var(--brand-color-black);
+      background: transparent;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover,
+      &:focus-visible,
+      &.is-active,
+      &.active {
+        background: transparent;
+        color: var(--brand-color-primary);
+      }
+
+      &:focus-visible {
+        outline: 2px solid rgba(0, 0, 0, 0.35);
+        outline-offset: 2px;
+      }
+    }
+  }
+}
+
+html.site-nav-open {
+  overflow: hidden;
+}

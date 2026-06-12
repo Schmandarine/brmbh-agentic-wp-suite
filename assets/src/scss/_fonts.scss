@@ -1,0 +1,55 @@
+// =============================================================================
+// FONTS — self-hosted Inter Variable + InterDisplay
+// Files live in: theme-root/fonts/
+// =============================================================================
+
+// Inter Variable — covers all weights 100–900 in one file (body text)
+@font-face {
+  font-family: "Inter";
+  font-style:  normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../../../fonts/InterVariable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style:  italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../../../fonts/InterVariable-Italic.woff2") format("woff2");
+}
+
+// InterDisplay — static weights for display/heading sizes (>= ~28px)
+// Letterforms tuned for large sizes — tighter apertures, closer to Helvetica
+@font-face {
+  font-family: "InterDisplay";
+  font-style:  normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../../fonts/InterDisplay-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "InterDisplay";
+  font-style:  normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../../fonts/InterDisplay-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "InterDisplay";
+  font-style:  normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../../../fonts/InterDisplay-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "InterDisplay";
+  font-style:  normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../../../fonts/InterDisplay-Bold.woff2") format("woff2");
+}

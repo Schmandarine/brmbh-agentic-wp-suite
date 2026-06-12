@@ -1,0 +1,258 @@
+// =============================================================================
+// GUTENBERG CORE BLOCK OVERRIDES — Bootstrap ↔ WP layout bridge
+//
+// The core tension: WP's layout system (constrained, flex, grid) and Bootstrap
+// (container, row, col-*) are separate systems. This file bridges them.
+//
+// ── MOBILE GUTTER SYSTEM ──────────────────────────────────────────────────────
+//
+// Bootstrap .container adds 1.5rem side padding at xs/sm/md (≤991px), then 0
+// at lg+ (max-width constraint handles the gutters). WP's constrained layout
+// has NO side padding at any viewport. We replicate Bootstrap's behaviour via
+// a manual root-padding approach:
+//
+//   .site-main gets 1.5rem side padding at < lg (affects default-alignment
+//   blocks like bare headings, columns, paragraphs placed without a wrapper).
+//
+//   .alignfull direct children of .site-main break out of that padding via
+//   negative margins so full-width sections truly touch the viewport edges.
+//
+//   .wp-block-group.alignfull.section then adds its OWN 1.5rem padding back
+//   so the section's inner content has gutters while the background stays
+//   edge-to-edge.
+//
+// This is the manual equivalent of WP's useRootPaddingAwareAlignments, scoped
+// to .site-main only so nav/footer/header are not affected.
+//
+// ACF blocks use Bootstrap .container inside their PHP templates — already
+// handled correctly. No extra rules needed for ACF block content.
+//
+// ── OTHER MISMATCHES ──────────────────────────────────────────────────────────
+//   WP stacks wp:columns at ≤781px      — Bootstrap lg stacks at ≤991px
+//   WP default button = dark gray       — brand needs primary red
+//   WP adds margin-bottom: 1.75em cols  — reset to 0
+// =============================================================================
+
+
+// ── Bootstrap $container-max-widths → WP contentSize ─────────────────────────
+// WP's constrained layout uses --wp--style--global--content-size for max-width.
+// theme.json seeds the initial value (xxl). We override the CSS custom property
+// at every Bootstrap breakpoint using $container-max-widths — single source of
+// truth in _variables.scss. Change that map; Bootstrap AND Gutenberg update.
+//
+// NOTE: theme.json "contentSize" is JSON, so it can't reference SCSS vars.
+//       Keep it in sync manually with map-get($container-max-widths, 'xxl').
+
+@each $bp, $max-width in $container-max-widths {
+  @include media-breakpoint-up($bp) {
+    :root {
+      --wp--style--global--content-size: #{$max-width};
+      --wp--style--global--wide-size: #{$max-width};
+    }
+  }
+}
+
+
+// ── ACF block sections: exempt from WP constrained max-width ─────────────────
+// ACF templates output <section> directly into .site-main — no outer ACF
+// wrapper div, no .alignfull class. WP's is-layout-constrained CSS would
+// cap them at contentSize (1272px) which collapses the full-width section bg.
+// Native Gutenberg blocks all output <div>, so this selector is ACF-specific.
+// ACF blocks manage their own container width via Bootstrap .container inside.
+
+// ── Root padding: default-alignment block gutters ────────────────────────────
+// Default-alignment blocks (bare headings, paragraphs, wp:columns without a
+// wrapper group) have no side padding. Add $container-padding-x gutters below lg.
+
+@include media-breakpoint-down(lg) {
+  .site-main {
+    padding-left:  $container-padding-x;
+    padding-right: $container-padding-x;
+  }
+}
+
+
+// ── Full-width breakout: ACF sections + native alignfull blocks ───────────────
+// Both ACF <section> blocks and native .alignfull Gutenberg blocks must:
+//   1. Have max-width: none — not capped by WP's contentSize constraint
+//   2. Have margin: 0 — not centered by WP's margin:auto !important rule
+//   3. At mobile: negative margin to break out of .site-main padding so
+//      full-width backgrounds reach the viewport edges
+//
+// !important required throughout: WP's .is-layout-constrained rule uses
+// margin: auto !important (specificity 0,2,0). Our rule is 0,2,0 too but
+// comes after — !important ensures we always win regardless of load order.
+
+.site-main > section,
+.site-main > .alignfull {
+  max-width: none !important;
+  width: 100%;
+
+  // Desktop (≥ lg): site-main has no padding — 0 margin is correct.
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+// Mobile (< lg): site-main has $container-padding-x — break out.
+@include media-breakpoint-down(lg) {
+  .site-main > section,
+  .site-main > .alignfull {
+    margin-left: -$container-padding-x !important;
+    margin-right: -$container-padding-x !important;
+    width: calc(100% + #{$container-padding-x * 2});
+  }
+}
+
+
+// ── Section groups: re-add gutters inside the full-width block ────────────────
+// alignfull sections broke out of .site-main padding above, so their content
+// would again touch the edges. Re-add $container-padding-x ON THE SECTION —
+// padding is inside the element so the background stays edge-to-edge, while
+// the content (constrained by WP layout) has proper gutters.
+// At lg+ the WP max-width + auto-margin centering handles gutters.
+
+// Top-level alignfull sections (layout-system-test): re-add mobile gutters when WP
+// constrained layout handles desktop centering. Nested groups in .content-wrapper
+// are excluded — their columns use the rule below.
+.site-main > .wp-block-group.alignfull.section {
+  @include media-breakpoint-down(lg) {
+    padding-left:  $container-padding-x;
+    padding-right: $container-padding-x;
+  }
+}
+
+// Landing pages: native image+text inside .content-wrapper — mirror ACF <section> + .container.
+// WP does not always persist custom className on wp:columns in saved markup, so target
+// the structural selector (same max-widths as Bootstrap .container in _globals.scss).
+.content-wrapper > .wp-block-group.section > .wp-block-columns {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $container-padding-x;
+  padding-right: $container-padding-x;
+
+  @include media-breakpoint-up(lg) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  @each $breakpoint, $max-width in $container-max-widths {
+    @include media-breakpoint-up($breakpoint) {
+      max-width: $max-width;
+    }
+  }
+}
+
+
+// ── Columns: stacking breakpoint ─────────────────────────────────────────────
+// WP stacks at ≤781px. Our layouts stack at Bootstrap lg (≤991px).
+// Higher specificity beats the WP :where() rule.
+
+@include media-breakpoint-down(lg) {
+  .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+
+// ── Columns: reset default bottom margin ─────────────────────────────────────
+// WP ships :where(.wp-block-columns) { margin-bottom: 1.75em } (0 specificity)
+
+.wp-block-columns {
+  margin-bottom: 0;
+}
+
+
+// ── Columns: section gap ──────────────────────────────────────────────────────
+// Uses $grid-gutter-width from _variables.scss — same as Bootstrap row gap.
+
+.section .wp-block-columns {
+  gap: $grid-gutter-width * 2; // 2× gutter = 3rem default; matches Figma spacing
+}
+
+
+// Pill buttons are <a> tags — override Bootstrap $link-hover-decoration (underline).
+.wp-block-button .wp-block-button__link {
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active,
+  &:visited {
+    text-decoration: none;
+  }
+}
+
+// ── Default button: brand primary ────────────────────────────────────────────
+// WP default button uses --wp--preset--color--contrast (dark gray).
+
+.wp-block-button:not(.is-style-ochre) .wp-block-button__link {
+  background-color: var(--brand-color-primary);
+  color: var(--brand-color-white);
+  border-color: var(--brand-color-primary);
+  border-radius: 9999px;
+
+  &:hover,
+  &:focus {
+    background-color: var(--brand-color-primary-darker);
+    border-color: var(--brand-color-primary-darker);
+    color: var(--brand-color-white);
+  }
+}
+
+
+// ── Ochre button ─────────────────────────────────────────────────────────────
+
+.wp-block-button.is-style-ochre .wp-block-button__link {
+  background-color: var(--brand-color-ochre);
+  color: var(--brand-color-white);
+  border-color: var(--brand-color-ochre);
+  border-radius: 9999px;
+
+  &:hover,
+  &:focus {
+    background-color: darken(#a69174, 8%);
+    border-color: darken(#a69174, 8%);
+    color: var(--brand-color-white);
+  }
+}
+
+
+// ── Buttons layout ────────────────────────────────────────────────────────────
+
+.wp-block-buttons {
+  gap: var(--space-xs);
+}
+
+
+// ── Imagetext 2-col section (wp:columns) ─────────────────────────────────────
+// Image column: brand border-radius + cover fit + mobile height cap.
+// Text column: flex column with gap (eyebrow / heading / body / buttons).
+// Landing pages: wp:columns.container inside .content-wrapper (same width as ACF .container).
+// Standalone pages: alignfull .section group + .container columns, or WP constrained layout.
+
+.imagetext-img {
+  border-radius: var(--corners-m);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+
+    @include media-breakpoint-down(md) {
+      max-height: 380px;
+    }
+  }
+}
+
+.imagetext-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+
+  p, h2, h3 { margin-bottom: 0; }
+}

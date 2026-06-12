@@ -1,0 +1,125 @@
+// =============================================================================
+// GLOBALS — site-level layout, base rules, utility classes
+// =============================================================================
+
+// html is the scroll container — body min-height:100% instead of height:100%.
+// This means Bootstrap's body.style.overflow='hidden' (modal scroll-lock) has
+// no effect on scroll position, so opening a modal never jumps the page.
+html   { height: 100%; overflow-y: auto; }
+body   { min-height: 100%; }
+
+// Prevent horizontal scrollbar from GSAP x-transform animations (e.g. hero sphere reveal).
+// clip (not hidden) — doesn't create a stacking context, doesn't break position:fixed elements.
+// overscroll-behavior:none removes the elastic bounce at page boundaries (also disables
+// pull-to-refresh on mobile — acceptable for a non-PWA landing page).
+html {
+  overflow-x: clip;
+  overscroll-behavior: none;
+}
+
+// Flex column layout — pushes footer to bottom on short pages
+.site {
+  display: flex;
+  flex-flow: column;
+  min-height: 100%;
+}
+
+.site-main {
+  flex: 1;
+}
+
+// OpenType features: square punctuation + quotes (Robert's Helvetica target)
+body {
+  font-feature-settings: "ss07" 1, "ss08" 1;
+}
+
+// Responsive container padding — $container-padding-x at xs/sm/md, 0 at lg+.
+// Max-width constraint handles gutters at lg+ (Bootstrap standard behaviour).
+// $container-padding-x defined in _variables.scss — single source of truth.
+.container {
+  padding-left:  $container-padding-x !important;
+  padding-right: $container-padding-x !important;
+
+  @include media-breakpoint-up(lg) {
+    padding-left:  0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+// Optional rounded overlap band — pulls up over a preceding full-bleed hero.
+// Add .content-wrapper around your main content when you want this effect.
+.content-wrapper {
+  position: relative;
+  border-radius: var(--corners-xl) var(--corners-xl) 0 0;
+  overflow: hidden;
+  margin-top: calc(-1 * var(--content-overlap));
+  background: var(--brand-color-secondary-light);
+}
+
+// Stack — flex column with consistent gap, used for text + CTA combos
+.stack {
+  display: flex;
+  flex-flow: column;
+  gap: 1rem;
+  align-items: flex-start;
+
+  p + p { margin-top: $stack-p-to-p; }
+  text-wrap: balance;
+}
+
+// Section vertical rhythm
+.section {
+  padding-top:    $section-y-spacing;
+  padding-bottom: $section-y-spacing;
+}
+
+// Eyebrow — reusable across ACF blocks and Gutenberg paragraphs (.is-style-eyebrow)
+// .eyebrow inherits text-align from parent (USPs uses .text-center wrapper → centered ✓)
+// .is-style-eyebrow forces left — the Gutenberg editor adds text-align:center to block styles
+.eyebrow,
+.is-style-eyebrow {
+  font-size: $h3-font-size; // = $font-size-base * 1.5 = 1.5rem at default scale
+  font-weight: 900;
+  color: var(--brand-color-primary);
+  margin-bottom: 0;
+}
+
+.is-style-eyebrow {
+  text-align: left;
+}
+
+// In a flex-column context (e.g. imagetext-content), WP's editor adds
+// margin:auto to .wp-block children (0,2,0 specificity), centering the
+// shrink-wrapped <p>. Scope the !important fix here — not globally —
+// so constrained group sections still get WP's auto-centering intact.
+.imagetext-content .is-style-eyebrow {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+// Responsive images
+img {
+  max-width: 100%;
+  height: auto;
+  
+  object-position: top;
+}
+
+// Full-card hit target — transparent button/a over position:relative card.
+// Pair with aria-label (buttons) or wrap card content in one <a> (navigation).
+.card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-color-primary);
+    outline-offset: 2px;
+  }
+}

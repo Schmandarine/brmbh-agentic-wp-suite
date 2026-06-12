@@ -1,0 +1,11 @@
+// Example Hero — block styles.
+// Prefer Bootstrap utilities in template.php over custom CSS. Only add what
+// utilities can't express. Imported via my-acf-blocks/_loader.scss.
+
+.example-hero {
+  background: var(--brand-color-secondary-light);
+
+  .display-3 {
+    text-wrap: balance;
+  }
+}

@@ -1,0 +1,68 @@
+/*!
+ * brmbh-agentic-wp-suite — main stylesheet
+ * Agentic WordPress starter: Bootstrap 5 + Gutenberg + ACF block factory.
+ *
+ * IMPORT ORDER — do not rearrange:
+ * 1. fonts         — @font-face, no dependencies
+ * 2. BS functions  — tint-color, subtract, etc. (must precede any use)
+ * 3. tokens        — Figma-generated CSS custom properties
+ * 4. variables     — Bootstrap overrides, consumes tokens
+ * 5. wp-css-vars   — Gutenberg bridge, needs variables resolved
+ * 6. BS core       — variables → mixins → utilities → modules
+ * 7. globals       — site layout, container, stack
+ * 8. components    — navigation, footer, buttons, typography
+ * 9. acf-blocks    — auto-loaded block styles
+ * 10. gutenberg    — editor overrides
+ */
+
+// 1. Fonts
+@import "fonts";
+
+// 2. Bootstrap helper functions
+@import "../../../node_modules/bootstrap/scss/functions";
+
+// 3. Design tokens (Figma → CSS vars)
+@import "tokens";
+
+// 4. Bootstrap variable overrides
+@import "variables";
+
+// 5. Gutenberg bridge
+@import "wp-css-variables";
+
+// 6. Bootstrap core
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/variables-dark";
+@import "../../../node_modules/bootstrap/scss/maps";
+@import "../../../node_modules/bootstrap/scss/mixins";
+@import "../../../node_modules/bootstrap/scss/utilities";
+@import "../../../node_modules/bootstrap/scss/root";
+@import "../../../node_modules/bootstrap/scss/reboot";
+@import "../../../node_modules/bootstrap/scss/type";
+@import "../../../node_modules/bootstrap/scss/grid";
+@import "../../../node_modules/bootstrap/scss/containers";
+@import "../../../node_modules/bootstrap/scss/transitions";
+@import "../../../node_modules/bootstrap/scss/buttons";
+@import "../../../node_modules/bootstrap/scss/card";
+@import "../../../node_modules/bootstrap/scss/navbar";
+@import "../../../node_modules/bootstrap/scss/nav";
+@import "../../../node_modules/bootstrap/scss/modal";   // optional: modal dialogs
+@import "../../../node_modules/bootstrap/scss/close";   // .btn-close in modal
+@import "../../../node_modules/bootstrap/scss/utilities/api";
+
+// 7. Site globals
+@import "globals";
+@import "grid-utilities";
+
+// 8. Components
+@import "components/site-navigation";
+@import "components/site-footer";
+@import "components/gutenberg-blocks";
+// @import "components/buttons";
+// @import "components/typography";
+
+// 9. ACF block styles (auto-loaded — /create-block appends new @import lines here)
+@import "../../../my-acf-blocks/loader";
+
+// 10. Gutenberg editor overrides
+// @import "gutenberg";

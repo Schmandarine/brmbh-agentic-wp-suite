@@ -1,0 +1,114 @@
+// =============================================================================
+// BOOTSTRAP VARIABLE OVERRIDES
+// Import order: after Bootstrap functions, before Bootstrap variables.
+// Tokens from _tokens.scss are mirrored here as SCSS vars for Bootstrap.
+// =============================================================================
+
+@import "../../../node_modules/bootstrap/scss/functions";
+
+// --- Brand colors (mirrored from CSS custom properties in _tokens.scss) ------
+$primary:          #2563eb;
+$primary-darker:   #1e3a8a;
+$secondary:        #64748b;
+$secondary-light:  #f1f5f9;
+$ochre:            #d97706;
+$black:            #0f172a;
+$white:            #ffffff;
+
+// --- Bootstrap semantic assignments ------------------------------------------
+$body-bg:    $white;
+$body-color: $black;
+
+$link-color:            $primary;
+$link-decoration:       none;
+$link-hover-decoration: underline;
+
+// --- Theme colors map (Bootstrap utilities, badges, forms) -------------------
+$theme-colors: (
+  "primary":          $primary,
+  "secondary":        $secondary,
+  "secondary-light":  $secondary-light,
+  "ochre":            $ochre,
+  "black":            $black,
+  "white":            $white,
+  "success":          #198754,
+  "danger":           #dc3545,
+  "warning":          #ffc107,
+  "info":             #0dcaf0,
+);
+
+// Lower Bootstrap's WCAG contrast threshold from 4.5 to 3 (AA Large) so that
+// btn-primary etc. render white text on a saturated brand color. Adjust to suit
+// your palette's contrast needs.
+$min-contrast-ratio: 3;
+
+// --- Spacing -----------------------------------------------------------------
+$spacer: 1rem;
+
+// --- Border radius -----------------------------------------------------------
+$border-radius:      0.25rem;
+$border-radius-sm:   0.125rem;
+$border-radius-lg:   1.5rem;   // maps to --corners-m (24px)
+$border-radius-xl:   2.8125rem; // maps to --corners-xl (45px)
+$border-radius-pill: 9999px;
+
+$enable-rounded:          true;
+$enable-negative-margins: true;
+
+// --- Grid --------------------------------------------------------------------
+$grid-columns:      12;
+$grid-gutter-width: 1.5rem;
+
+$grid-breakpoints: (
+  xs:  0,
+  sm:  576px,
+  md:  768px,
+  lg:  992px,
+  xl:  1200px,
+  xxl: 1440px,
+) !default;
+
+$container-max-widths: (
+  sm:  100%,
+  md:  100%,
+  lg:  960px,
+  xl:  1140px,
+  xxl: 1272px,
+) !default;
+
+$container-padding-x: 1.5rem;
+
+// --- Typography --------------------------------------------------------------
+$font-family-base:     "Inter", sans-serif;
+$font-family-display:  "InterDisplay", "Inter", sans-serif;
+
+$font-size-base:   1rem;
+$font-weight-base: 400;
+$line-height-base: 1.5;
+
+$headings-font-family:  $font-family-display;
+$headings-font-weight:  800;
+$headings-line-height:  1.05;
+$headings-color:        $black;
+
+$h1-font-size: $font-size-base * 3.5;
+$h2-font-size: $font-size-base * 2.75;  // ~44px
+$h3-font-size: $font-size-base * 1.5;   // ~24px
+$h4-font-size: $font-size-base * 1.25;
+$h5-font-size: $font-size-base;
+$h6-font-size: $font-size-base;
+
+$paragraph-margin-bottom: 0.5rem;
+
+// --- Buttons -----------------------------------------------------------------
+$btn-padding-y:        0.75rem;
+$btn-padding-x:        2rem;
+$btn-font-size:        $font-size-base;
+$btn-font-weight:      600;
+$btn-border-radius:    $border-radius-pill;
+$btn-border-radius-sm: $border-radius-pill;
+$btn-border-radius-lg: $border-radius-pill;
+
+// --- Section spacing helpers (not Bootstrap vars, used in _globals.scss) -----
+$section-y-spacing: 8rem; // --space-xxl equivalent
+$stack-p-to-p: 0.5rem;

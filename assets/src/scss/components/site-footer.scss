@@ -1,0 +1,76 @@
+// =============================================================================
+// SITE FOOTER
+// bg-secondary-light, rounded-top 45px. Decorative gradient image bleeds
+// above and below the top row (imgFrame86 pattern from Figma node 204:4612).
+// Pulls up over the preceding section via --content-overlap (mirrors .content-wrapper).
+// =============================================================================
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(-1 * var(--content-overlap));
+  background: var(--brand-color-secondary-light);
+  border-radius: var(--corners-xl) var(--corners-xl) 0 0;
+  overflow: hidden;
+
+  // ── TOP ROW ───────────────────────────────────────────────────────────────
+  &__top {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+  }
+
+  // Decorative bg frame: absolutely covers the top row; image is taller than
+  // its container so it bleeds above (top: -112%) and below (height: 259%).
+  &__bg-frame {
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__bg-img {
+    position: absolute;
+    left: 0;
+    top: -112%;
+    width: 100%;
+    height: 259%;
+    object-fit: cover;
+  }
+
+  // Stacks logo above nav on mobile, row on lg+.
+  &__top-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__logo {
+    img,
+    svg {
+      max-width: 278px;
+      height: auto;
+    }
+  }
+
+  // ── FOOTER NAV ────────────────────────────────────────────────────────────
+  &__nav {
+    gap: var(--space-m);
+  }
+
+  // ── BOTTOM STRIP ──────────────────────────────────────────────────────────
+  &__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: var(--brand-color-secondary-light);
+    padding: var(--space-xs) #{$container-padding-x};
+    font-size: 14px;
+    color: var(--brand-color-black);
+  }
+}
+
+// Reserve bottom space on the last section so footer overlap does not cover content.
+.site-main > :last-child.section,
+.site-main > :last-child.events-grid,
+.site-main > .content-wrapper:last-child > :last-child {
+  padding-bottom: calc(#{$section-y-spacing} + var(--content-overlap));
+}

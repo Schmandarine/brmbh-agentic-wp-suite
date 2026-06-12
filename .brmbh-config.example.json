@@ -1,0 +1,6 @@
+{
+  "_comment": "Copy this file to .brmbh-config.json (gitignored) and fill in your values. Used by `wp brmbh tokens` / the /sync-tokens skill to pull design tokens from Figma.",
+  "figmaFileKey": "your-figma-file-key",
+  "figmaNodeId": "0:1",
+  "figmaToken": "figd_your_personal_access_token"
+}

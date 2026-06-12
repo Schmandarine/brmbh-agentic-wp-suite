@@ -1,0 +1,18 @@
+/*!
+Theme Name: brmbh Agentic WP Suite
+Theme URI: https://github.com/Schmandarine/brmbh-agentic-wp-suite
+Author: Jan Brombach
+Author URI: https://brombach.de
+Description: Agentic WordPress starter theme — Bootstrap 5 + Gutenberg + an ACF block factory, with agent-agnostic skills (Claude, Cursor, Windsurf) for building sections from a design. Requires Advanced Custom Fields PRO.
+Version: 0.1.0
+Requires at least: 6.4
+Tested up to: 6.9
+Requires PHP: 8.0
+License: GNU General Public License v2 or later
+License URI: LICENSE
+Text Domain: brmbh-agentic-wp-suite
+Tags: custom-logo, custom-menu, featured-images, translation-ready, block-styles, wide-blocks
+
+The compiled stylesheet lives in assets/dist/css/style.css.
+This file exists only to register the theme with WordPress.
+*/

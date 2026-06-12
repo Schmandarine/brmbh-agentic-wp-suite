@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "layout": {
+      "contentSize": "1272px",
+      "wideSize": "1272px"
+    },
+    "color": {
+      "custom": false,
+      "customGradient": false,
+      "defaultGradients": false,
+      "defaultPalette": false,
+      "duotone": []
+    },
+    "typography": {
+      "customFontSize": false,
+      "dropCap": false,
+      "fontStyle": false,
+      "fontWeight": false,
+      "letterSpacing": false,
+      "textDecoration": false,
+      "textTransform": false
+    },
+    "spacing": {
+      "customSpacingSize": false,
+      "units": ["px", "rem", "%"]
+    }
+  }
+}

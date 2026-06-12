@@ -1,0 +1,29 @@
+// =============================================================================
+// GUTENBERG BRIDGE — maps Bootstrap SCSS vars to WP CSS custom properties
+// Ensures the block editor uses the same spacing/colors as the frontend.
+// Import AFTER _variables.scss so SCSS vars are resolved.
+// =============================================================================
+
+:root {
+  // Grid / gutter
+  --wp--custom--gap--horizontal:      #{$grid-gutter-width};
+  --wp--custom--grid--gutter-x:       #{$grid-gutter-width};
+  --wp--custom--container--padding-x: #{$container-padding-x};
+
+  // Container max-widths — mirrors $container-max-widths in _variables.scss.
+  // Exposed as CSS vars so Gutenberg inline styles / block.json can reference them.
+  @each $bp, $max-width in $container-max-widths {
+    --wp--custom--container--max-width-#{$bp}: #{$max-width};
+  }
+  // Convenience alias: xxl = the largest (= theme.json contentSize)
+  --wp--custom--container--max-width: #{map-get($container-max-widths, 'xxl')};
+
+  --wp--style--root--padding-left:  #{$container-padding-x};
+  --wp--style--root--padding-right: #{$container-padding-x};
+}
+
+// Prevent WordPress from adding body padding (conflicts with Bootstrap container)
+body {
+  padding-left:  0 !important;
+  padding-right: 0 !important;
+}

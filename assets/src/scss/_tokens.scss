@@ -1,0 +1,55 @@
+// =============================================================================
+// DESIGN TOKENS — neutral starter palette
+//
+// These are placeholder defaults. In a real project, regenerate this file from
+// your Figma Variables with: wp brmbh tokens  (see tools/sync-tokens.mjs).
+// Token *names* are the contract — keep them; swap the *values* for your brand.
+// =============================================================================
+
+:root {
+  // Colors
+  --brand-color-primary:          #2563eb;
+  --brand-color-primary-darker:   #1e3a8a;
+  --brand-color-secondary:        #64748b;
+  --brand-color-secondary-light:  #f1f5f9;
+  --brand-color-ochre:            #d97706;
+  --brand-color-black:            #0f172a;
+  --brand-color-white:            #ffffff;
+
+  // Spacing scale (px values — used via CSS var or mirrored in SCSS below)
+  --space-xxs:  4px;
+  --space-xs:   12px;
+  --space-s:    16px;
+  --space-m:    24px;
+  --space-l:    32px;
+  --space-xl:   64px;
+  --space-xxl:  128px;
+  --space-edge: 84px;
+
+  // Border radius
+  --corners-m:  24px;
+  --corners-xl: 45px;
+
+  // Grid utilities — --grid-gap--main drives all u-grid-* classes
+  --grid-gap--main: 1.5rem; // matches Bootstrap $grid-gutter-width
+
+  // Site navigation — fixed masthead height; hero offset when nav precedes #page.site
+  --site-nav-height: 7rem;
+
+  // Hero ↔ .content-wrapper overlap — rounded band pulls up; hero reserves same space below.
+  --content-overlap: 7rem;
+
+  // Optional gradient palette — example "mesh" background swatches.
+  --mesh-1: #60a5fa;
+  --mesh-2: #3b82f6;
+  --mesh-3: #2563eb;
+  --mesh-4: #1e40af;
+  --mesh-glass-tint: rgba(255, 255, 255, 0.02);
+}
+
+// Responsive token overrides — keep in sync with Bootstrap $grid-breakpoints (md = 768px).
+@media (max-width: 767.98px) {
+  :root {
+    --content-overlap: 7rem;
+  }
+}
