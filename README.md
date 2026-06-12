@@ -1,102 +1,159 @@
 # brmbh Agentic WP Suite
 
-An **agentic WordPress starter theme**: Bootstrap 5 ↔ Gutenberg layout bridge, an
-auto-registering **ACF block factory**, and **agent-agnostic skills** (Claude, Cursor,
-Windsurf) for building page sections straight from a Figma design or screenshot.
+**An agentic WordPress starter theme: Bootstrap 5 + Gutenberg + a self-registering ACF block
+factory, built to be driven by a coding agent.**
 
-The premise: clone the theme, point a coding agent at it, and have it scaffold pages, build
-ACF blocks, and wire design tokens — without hand-writing boilerplate. Every moving part is
-agent-callable, scriptable, and reviewable.
+Clone it, point Claude / Cursor / Windsurf at it, and build production page sections straight
+from a Figma design — ACF blocks, design tokens, page scaffolding, and deploys, without
+hand-writing the boilerplate. Everything is a folder convention or a one-line command, so an
+agent (or a human) can extend it without reverse-engineering the theme first.
 
-> ⚠️ **Requires Advanced Custom Fields PRO 6.0+.** The block layer is load-bearing — there is
-> no fallback path. See `inc/dependencies.php`.
-
----
-
-## Quick start
-
-```bash
-git clone https://github.com/Schmandarine/brmbh-agentic-wp-suite.git wp-content/themes/brmbh-agentic-wp-suite
-cd wp-content/themes/brmbh-agentic-wp-suite
-npm install
-npm run build          # or: npm run watch  (live rebuild)
-```
-
-Activate the theme in WordPress (ACF Pro must be active). On activation the theme scaffolds
-its starter pages + menus once. Re-run any time:
-
-```bash
-wp brmbh scaffold            # idempotent — creates missing pages/menus
-wp brmbh scaffold --dry-run  # preview without writing
-```
+It's a classic PHP theme — no build-step lock-in, no Blade, no Composer. Just Bootstrap, ACF
+Pro, vanilla WordPress, and a set of conventions that automate the repetitive parts.
 
 ---
 
-## What's in the box
+## The three pillars
 
-| Layer | Where | What |
-|---|---|---|
-| **Build** | `package.json`, `webpack.config.js`, `tools/sass-with-theme-flags.sh` | Bootstrap 5.3 + GSAP, Webpack (JS), Dart Sass (CSS) |
-| **Design tokens** | `assets/src/scss/_tokens.scss` | CSS custom properties (Figma-syncable). Re-value for your brand |
-| **Bootstrap bridge** | `assets/src/scss/_variables.scss`, `_wp-css-variables.scss`, `components/gutenberg-blocks.scss` | One source of truth for colors/spacing across SCSS and the block editor |
-| **Block factory** | `my-acf-blocks/loader.php` | Drop a four-file folder, it auto-registers. No manual wiring |
-| **Scaffold** | `inc/scaffold.php` | Declarative pages + menus, idempotent |
-| **CLI** | `inc/cli.php` (`wp brmbh ...`) | Thin wrappers around scaffold + token sync |
-| **Agent skills** | `AGENTS/` + thin wrappers in `.claude/`, `.cursor/`, `.windsurf/` | `/create-block`, `/list-blocks`, `/edit-block`, `/delete-block`, `/sync-tokens` |
+### 1. 🧱 An ACF block factory that registers itself
 
----
-
-## The ACF block factory
-
-Each block is a folder of four files. The loader scans `my-acf-blocks/` and registers
-everything automatically — no `register_block_type()` calls to maintain.
+A block is a folder of four files. Drop it into `my-acf-blocks/` and it's live — no
+`register_block_type()` calls, no central registry, no manual ACF group wiring.
 
 ```
 my-acf-blocks/{block-name}/
   block.json     # WordPress block registration (ACF reads acf.renderTemplate)
   fields.php     # ACF field group (returned as an array)
   template.php   # render output (PHP + Bootstrap + get_field())
-  _style.scss    # block styles (auto-imported via _loader.scss)
+  _style.scss    # block styles (auto-imported)
 ```
 
-See `my-acf-blocks/example-hero/` for a working reference, and
-`my-acf-blocks/ACF-BLOCK-EDIT-MODE.md` for why every block ships `apiVersion: 2`.
+`my-acf-blocks/loader.php` scans the folder and registers each block + field group on
+`init` / `acf/init`. The **`/create-block`** agent skill writes all four files from a Figma
+node or a screenshot, mapping the design to your tokens — never raw hex. Working reference:
+`my-acf-blocks/example-hero/`.
 
-The fastest way to make one is to ask your agent to run **`/create-block`** — it asks for the
-ACF group, an optional Figma node or screenshot, then writes all four files and appends the
-SCSS import.
+### 2. 🔁 A sync toolchain: design tokens in, code + database out
+
+One command in each direction, every one agent-callable:
+
+| Tool | Direction | What it does |
+|---|---|---|
+| `wp brmbh tokens` · `/sync-tokens` | Figma → repo | Pull Figma Variables into `_tokens.scss` as CSS custom properties |
+| `tools/deploy.sh` | local → server | rsync the built theme over SSH — works with IP-restricted hosts where CI can't reach |
+| `tools/db-pull.sh` | server → local | Export remote DB, import locally, URL search-replace, reconcile plugins + schema |
+| `tools/db-push.sh` | local → server | The reverse — guarded by `CANONICAL_ENV` so you can't clobber production |
+| `tools/sync-plugins.sh` | local → server | Install wp.org plugins remotely; rsync premium ones |
+| `tools/version-check.sh` | both | Report PHP / WordPress / theme / plugin version drift between environments |
+
+Environments are tiny gitignored `tools/env/*.env` files (copy from the `.example`
+templates). See [`tools/env/README.md`](tools/env/README.md).
+
+### 3. 🎨 A real Bootstrap 5 ↔ Gutenberg integration
+
+Bootstrap and the block editor share **one source of truth** for color, spacing, and
+typography. Editors never type a Bootstrap class; agents never invent a hex value.
+
+```
+_tokens.scss            CSS custom properties (Figma-synced)
+  → _variables.scss     $theme-colors + Bootstrap overrides
+  → _wp-css-variables   the SCSS-to-WordPress bridge
+  → inc/gutenberg.php   editor color palette + spacing scale
+```
+
+Change a value once and it propagates to SCSS, the live frontend, and the editor canvas. The
+editor loads the compiled theme CSS so block previews match production. Full-width sections
+with container-constrained content work for both native Gutenberg patterns
+(`inc/block-patterns.php`) and ACF blocks.
+
+> ⚠️ **Requires Advanced Custom Fields PRO 6.0+.** The block layer is load-bearing — there is
+> no fallback path. `inc/dependencies.php` enforces it with admin notices and CLI guards.
+
+---
+
+## Quick start
+
+```bash
+# 1. Clone into your WordPress themes directory
+git clone https://github.com/Schmandarine/brmbh-agentic-wp-suite.git \
+  wp-content/themes/brmbh-agentic-wp-suite
+cd wp-content/themes/brmbh-agentic-wp-suite
+
+# 2. Install + build assets
+npm install
+npm run build            # or: npm run watch  (live rebuild)
+
+# 3. Activate the theme in wp-admin (ACF Pro must be active).
+#    It scaffolds starter pages + menus once on activation.
+
+# 4. Re-run the scaffold any time — it's idempotent
+wp brmbh scaffold        # add --dry-run to preview
+```
+
+Then ask your agent to **`/create-block`** and build your first section from a design.
 
 ---
 
 ## Agent skills
 
-`AGENTS/` is the canonical source. Each agent has a thin wrapper that just reads and executes
-the matching `AGENTS/{skill}.md`:
+`AGENTS/` is the canonical source. Each agent has a thin wrapper that reads and executes the
+matching `AGENTS/{skill}.md` (wrappers in `.claude/commands/`, `.cursor/rules/`,
+`.windsurf/rules/`). Works with any agent that can read files and run shell commands.
 
 | Skill | Purpose |
 |---|---|
-| `/create-block` | Interactive: build a new ACF block from a design, mapping to design tokens (never raw hex) |
-| `/list-blocks` | Report registered blocks, ACF groups, and missing SCSS imports |
+| `/create-block` | Build a new ACF block from a Figma node, screenshot, or field schema |
+| `/list-blocks` | Audit registered blocks, ACF groups, and missing SCSS imports |
 | `/edit-block` | Modify an existing block's json/fields/template/scss |
 | `/delete-block` | Confirm + remove a block folder and its SCSS import |
 | `/sync-tokens` | Regenerate `_tokens.scss` from Figma Variables via MCP |
 
-Wrappers live in `.claude/commands/`, `.cursor/rules/`, `.windsurf/rules/`.
+The operating contract every agent follows is [AGENTS.md](AGENTS.md); Claude-specific workflow
+is in [CLAUDE.md](CLAUDE.md). Both are written to be read by an LLM as a system prompt for the
+codebase.
 
 ---
 
-## Customizing the brand
+## How it compares
 
-1. Edit `assets/src/scss/_tokens.scss` (CSS custom properties) — or run `/sync-tokens` to pull
-   from Figma.
-2. Mirror any new palette values in `assets/src/scss/_variables.scss` (`$theme-colors`) and
-   `inc/gutenberg.php` (editor palette). **Keep the slug names** — they're the contract.
-3. Drop your logo at `assets/img/logo.svg` (optionally `logo-on-light.svg`), or set it via
-   Customizer → Site Identity.
-4. `npm run build`.
+| | This suite | Underscores (`_s`) | Understrap | Sage (Roots) |
+|---|---|---|---|---|
+| CSS framework | **Bootstrap 5** | none | Bootstrap | Tailwind |
+| Bootstrap ↔ Gutenberg token bridge | ✅ | — | partial | — |
+| Self-registering ACF block factory | ✅ | — | — | — |
+| Agent skills (Claude/Cursor/Windsurf) | ✅ | — | — | — |
+| Figma → SCSS token sync | ✅ | — | — | — |
+| Deploy + DB-sync tooling included | ✅ | — | — | — |
+| Templating | vanilla PHP | vanilla PHP | vanilla PHP | Blade |
+| Build toolchain | npm + Webpack + Sass | none | Gulp/npm | Bud + Composer |
+| Requires ACF Pro | **yes** | no | no | no |
+
+**Use it when** you build content-driven WordPress sites with ACF blocks and want a coding
+agent to do the repetitive block/scaffold/deploy work against a Bootstrap design system.
+**Skip it when** you want a block-theme/FSE (`theme.json`-only) setup, a Tailwind/Blade stack,
+or a theme with no ACF Pro dependency.
 
 ---
+
+## Tech stack
+
+WordPress 6.4+ · PHP 8.0+ · ACF Pro 6.0+ · Bootstrap 5.3 · GSAP · Webpack · Dart Sass ·
+Node 18+ · WP-CLI (`wp brmbh` namespace) · Inter / InterDisplay variable fonts ·
+GPL-2.0-or-later.
+
+## Project layout
+
+```
+my-acf-blocks/        ACF block factory (loader + one example block)
+inc/                  scaffold, block patterns, editor config, ACF dependency guard, CLI
+assets/src/scss/      tokens → variables → Bootstrap bridge → globals → components
+assets/src/js/        Bootstrap + GSAP entry, scroll entrances, sticky nav
+tools/                deploy + DB-sync + Figma token-sync scripts; env templates
+AGENTS/               canonical agent skills (+ thin wrappers in .claude / .cursor / .windsurf)
+template-parts/       reusable partials (site logo)
+```
 
 ## License
 
-GPL-2.0-or-later. See [LICENSE](LICENSE).
+GPL-2.0-or-later. See [LICENSE](LICENSE). Built and maintained by
+[Jan Brombach](https://brombach.de).
