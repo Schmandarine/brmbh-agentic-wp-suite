@@ -7,6 +7,10 @@ assets/dist/
 # Local project config (Figma keys, tokens) — copy from the .example
 .brmbh-config.json
 
+# Environment files for deploy/DB-sync (server hosts + paths) — templates only are tracked
+tools/env/*.env
+!tools/env/*.example
+
 # OS / editor cruft
 .DS_Store
 *.log
