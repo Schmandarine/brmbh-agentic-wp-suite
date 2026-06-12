@@ -12,6 +12,33 @@ Content is driven by ACF blocks and native Gutenberg patterns — not page templ
 truth (`brmbh_has_acf_pro()`); it surfaces admin notices and aborts `wp brmbh` commands when
 ACF Pro is missing.
 
+## Skills — everything an agent can do here
+
+Every capability has a skill doc in `AGENTS/` (thin wrappers in `.claude/`, `.cursor/`,
+`.windsurf/` point to it). Read the skill before performing the action — each carries its own
+preconditions and guardrails.
+
+| Skill | Action | Wraps |
+|---|---|---|
+| `/create-block` | Build a new ACF block from a design | block factory |
+| `/edit-block` | Modify an existing block | block factory |
+| `/list-blocks` | Audit blocks + missing SCSS imports | block factory |
+| `/delete-block` | Remove a block + its SCSS import | block factory |
+| `/sync-tokens` | Figma Variables → `_tokens.scss` | `tools/sync-tokens.mjs` |
+| `/deploy` | Ship theme code to a remote env | `tools/deploy.sh` |
+| `/sync-db` | Pull/push the database (push is destructive) | `tools/db-*.sh` |
+| `/sync-plugins` | Mirror active plugins to a remote env | `tools/sync-plugins.sh` |
+| `/check-versions` | Report PHP/WP/theme/plugin drift | `tools/version-check.sh` |
+
+Plus the scaffold: `wp brmbh scaffold` (idempotent pages + menus, defined in `inc/scaffold.php`).
+
+**Operations guardrails (deploy + sync):** these touch live servers and databases.
+- Always `npm run build` before `/deploy`.
+- Always run `db-verify.sh` (or `/check-versions`) before a DB sync.
+- `/sync-db` push is **destructive** and guarded by `CANONICAL_ENV` — never bypass the guard or
+  set `SKIP_CONFIRM` on the user's behalf; if a push is blocked, stop and ask.
+- Real `tools/env/*.env` files are gitignored — never commit them or echo their secrets.
+
 ## Design system — the rules
 
 1. **Never hardcode hex, px font-sizes, or arbitrary spacing.** Map to tokens.
