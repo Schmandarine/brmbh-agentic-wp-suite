@@ -13,6 +13,50 @@ Pro, vanilla WordPress, and a set of conventions that automate the repetitive pa
 
 ---
 
+## Why "agentic", why "suite"
+
+**Agentic** — every capability is exposed as an **agent skill**, not just human docs:
+
+- Each tool (build a block, sync tokens, deploy, sync the DB, check drift) has a skill file in
+  `AGENTS/` with its own preconditions and guardrails, plus thin wrappers for Claude, Cursor,
+  and Windsurf. An agent knows *when* to use it and *how* to do it safely.
+- **Convention over configuration:** a block is a folder of four files; pages are a declarative
+  array. An agent extends the theme by following a pattern, not by reading the whole codebase.
+- **Deterministic mechanics, agent judgment:** the actual work runs in plain CLI scripts; the
+  agent supplies the reasoning (which design token, which environment, is this safe). No magic.
+- The docs (`README`, `AGENTS.md`, `CLAUDE.md`) are written to be read by an LLM as a system
+  prompt for the codebase.
+
+**Suite** — it's more than a theme. It bundles the pieces of a whole workflow:
+
+> theme + ACF block factory + Figma→SCSS token pipeline + deploy & DB-sync toolchain +
+> agent skill packs for three editors
+
+…so you can go from a Figma frame to a deployed section without leaving the repo.
+
+---
+
+## How it compares
+
+| | This suite | Underscores (`_s`) | Understrap | Sage (Roots) |
+|---|---|---|---|---|
+| CSS framework | **Bootstrap 5** | none | Bootstrap | Tailwind |
+| Bootstrap ↔ Gutenberg token bridge | ✅ | — | partial | — |
+| Self-registering ACF block factory | ✅ | — | — | — |
+| Agent skills (Claude/Cursor/Windsurf) | ✅ | — | — | — |
+| Figma → SCSS token sync | ✅ | — | — | — |
+| Deploy + DB-sync tooling included | ✅ | — | — | — |
+| Templating | vanilla PHP | vanilla PHP | vanilla PHP | Blade |
+| Build toolchain | npm + Webpack + Sass | none | Gulp/npm | Bud + Composer |
+| Requires ACF Pro | **yes** | no | no | no |
+
+**Use it when** you build content-driven WordPress sites with ACF blocks and want a coding
+agent to do the repetitive block/scaffold/deploy work against a Bootstrap design system.
+**Skip it when** you want a block-theme/FSE (`theme.json`-only) setup, a Tailwind/Blade stack,
+or a theme with no ACF Pro dependency.
+
+---
+
 ## The three pillars
 
 ### 1. 🧱 An ACF block factory that registers itself
@@ -37,14 +81,14 @@ node or a screenshot, mapping the design to your tokens — never raw hex. Worki
 
 One command in each direction, every one agent-callable:
 
-| Tool | Direction | What it does |
-|---|---|---|
-| `wp brmbh tokens` · `/sync-tokens` | Figma → repo | Pull Figma Variables into `_tokens.scss` as CSS custom properties |
-| `tools/deploy.sh` | local → server | rsync the built theme over SSH — works with IP-restricted hosts where CI can't reach |
-| `tools/db-pull.sh` | server → local | Export remote DB, import locally, URL search-replace, reconcile plugins + schema |
-| `tools/db-push.sh` | local → server | The reverse — guarded by `CANONICAL_ENV` so you can't clobber production |
-| `tools/sync-plugins.sh` | local → server | Install wp.org plugins remotely; rsync premium ones |
-| `tools/version-check.sh` | both | Report PHP / WordPress / theme / plugin version drift between environments |
+| Tool | Skill | Direction | What it does |
+|---|---|---|---|
+| `tools/sync-tokens.mjs` | `/sync-tokens` | Figma → repo | Pull Figma Variables into `_tokens.scss` as CSS custom properties |
+| `tools/deploy.sh` | `/deploy` | local → server | rsync the built theme over SSH — works with IP-restricted hosts where CI can't reach |
+| `tools/db-pull.sh` | `/sync-db` | server → local | Export remote DB, import locally, URL search-replace, reconcile plugins + schema |
+| `tools/db-push.sh` | `/sync-db` | local → server | The reverse — guarded by `CANONICAL_ENV` so you can't clobber production |
+| `tools/sync-plugins.sh` | `/sync-plugins` | local → server | Install wp.org plugins remotely; rsync premium ones |
+| `tools/version-check.sh` | `/check-versions` | both | Report PHP / WordPress / theme / plugin version drift |
 
 Environments are tiny gitignored `tools/env/*.env` files (copy from the `.example`
 templates). See [`tools/env/README.md`](tools/env/README.md).
@@ -103,10 +147,14 @@ matching `AGENTS/{skill}.md` (wrappers in `.claude/commands/`, `.cursor/rules/`,
 | Skill | Purpose |
 |---|---|
 | `/create-block` | Build a new ACF block from a Figma node, screenshot, or field schema |
-| `/list-blocks` | Audit registered blocks, ACF groups, and missing SCSS imports |
 | `/edit-block` | Modify an existing block's json/fields/template/scss |
+| `/list-blocks` | Audit registered blocks, ACF groups, and missing SCSS imports |
 | `/delete-block` | Confirm + remove a block folder and its SCSS import |
 | `/sync-tokens` | Regenerate `_tokens.scss` from Figma Variables via MCP |
+| `/deploy` | Ship the built theme to a remote environment over SSH |
+| `/sync-db` | Pull or push the database between environments (push is guarded + destructive) |
+| `/sync-plugins` | Mirror active plugins to a remote environment |
+| `/check-versions` | Report PHP / WordPress / theme / plugin drift between environments |
 
 The operating contract every agent follows is [AGENTS.md](AGENTS.md); Claude-specific workflow
 is in [CLAUDE.md](CLAUDE.md). Both are written to be read by an LLM as a system prompt for the
@@ -114,24 +162,14 @@ codebase.
 
 ---
 
-## How it compares
+## Customizing the brand
 
-| | This suite | Underscores (`_s`) | Understrap | Sage (Roots) |
-|---|---|---|---|---|
-| CSS framework | **Bootstrap 5** | none | Bootstrap | Tailwind |
-| Bootstrap ↔ Gutenberg token bridge | ✅ | — | partial | — |
-| Self-registering ACF block factory | ✅ | — | — | — |
-| Agent skills (Claude/Cursor/Windsurf) | ✅ | — | — | — |
-| Figma → SCSS token sync | ✅ | — | — | — |
-| Deploy + DB-sync tooling included | ✅ | — | — | — |
-| Templating | vanilla PHP | vanilla PHP | vanilla PHP | Blade |
-| Build toolchain | npm + Webpack + Sass | none | Gulp/npm | Bud + Composer |
-| Requires ACF Pro | **yes** | no | no | no |
-
-**Use it when** you build content-driven WordPress sites with ACF blocks and want a coding
-agent to do the repetitive block/scaffold/deploy work against a Bootstrap design system.
-**Skip it when** you want a block-theme/FSE (`theme.json`-only) setup, a Tailwind/Blade stack,
-or a theme with no ACF Pro dependency.
+1. Edit `assets/src/scss/_tokens.scss` — or run `/sync-tokens` to pull from Figma.
+2. Mirror new palette values in `_variables.scss` (`$theme-colors`) and `inc/gutenberg.php`
+   (editor palette). **Keep the slug names** — they're the contract.
+3. Drop your logo at `assets/img/logo.svg` (optionally `logo-on-light.svg`), or set it via
+   Customizer → Site Identity.
+4. `npm run build`.
 
 ---
 
